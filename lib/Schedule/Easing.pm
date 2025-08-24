@@ -94,7 +94,7 @@ __END__
 
 =head1 NAME
 
-Schedule::Easing - Scheduled ramp-up and linear activation of events
+Schedule::Easing - Stateless, stable filtering of events with ramp-up activation on a schedule
 
 =head1 VERSION
 
@@ -134,7 +134,7 @@ Version 0.1.1
 
 =head1 DESCRIPTION
 
-Easing provides stateless, stable selection of point-in-time events that need to be exposed with increasing frequency over a period of time.  Events may be infrequent or real-time, low or high volume, but must contain some manner of identification for categorization, such as a reported line number or non-random content that can be used to compute a message digest.  As time increases, the percentage of events emitted with be monotonically increasing.
+Easing provides stateless, stable selection of point-in-time events that need to be exposed with increasing frequency over a period of time.  Events may be infrequent or real-time, low or high volume, but must contain some manner of identification for categorization, such as a reported line number or non-random content that can be used to compute a message digest.  As time increases, the percentage of events emitted will be monotonically increasing.
 
 Contrasted with throttling, which suppresses I<any> incoming event in real-time once a threshold is exceeded, easing ensures that new events are uniformly distributed over the configured period of time.  Whereas throttling requires cached statistics, easing can be performed without resident processes or data stores.
 
