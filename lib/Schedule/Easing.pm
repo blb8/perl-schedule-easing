@@ -34,6 +34,7 @@ sub init {
 		if(ref($ease) ne 'HASH') { confess('Schedule entry must be a hash') }
 		if(my $builder=$builder{$$ease{type}}) {
 			$ease=$builder->new(%$ease,_warnExpired=>$$self{warnExpired});
+			if($$ease{_err}) { $$self{_err}=1 }
 		}
 		else { confess("Unsupported entry type $$ease{type}") }
 	}
@@ -129,7 +130,7 @@ Version 0.1.2
       },
     ],
   );
-
+  
   my @matches=$easing->matches(ts=>time(), events=>\@events);
 
 =head1 DESCRIPTION
@@ -291,6 +292,18 @@ For example, if C<ts> is in the exact middle of the window, supposing C<begin=0>
 All above examples call C<$easing-E<gt>matches(events=>[event, ...])> using linewise matches.  That is C<event="..."> is a message string.
 
 An array of event objects can be passed instead of simple strings.  An individual C<event> can be a hash of the form C<{message=>"...",...}> or an array of the form C<[message,...]>, and the C<message> will be used for matching purposes.  The returned list will be the entire matching event objects.
+
+=head1 Validation and Debugging
+
+When a non-fatal error is encountered, C<$$easing{_err}=1> will be set.  At this time no additional information is provided, except as emitted by C<carp>.
+
+=head2 Invalid easing configurations
+
+Some parameters to an easing entry are mandatory and die immediately via C<confess>:  Improper C<schedule> structure, entry structure, or invalid types for C<begin>, C<final>, C<tsA>, C<tsB>, C<match>.
+
+=head2 Expired easing configurations
+
+Initializing the object with C<Schedule::Easing-E<gt>new(warnExpired=>1)> will report if any entries in the schedule have C<tsB> in the past, and C<final=1> or C<final=0>.  This permits discovery and removal of unneeded pattern matchers, which otherwise slow down processing.  When C<finalE<lt>1>, no warnings will be reported since filtering is still active.
 
 =head1 SEE ALSO
 

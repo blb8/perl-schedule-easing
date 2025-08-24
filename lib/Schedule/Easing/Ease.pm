@@ -44,13 +44,13 @@ sub validate {
 	if(ref($$self{match}) ne 'Regexp') { confess('Must be Regexp:  match') }
 	if(ref($$self{name}))              { confess('Must be string:  name') }
 	foreach my $k (qw/begin final/) {
-		if($$self{$k}<0) { $$self{$k}=0; carp("$k<0") }
-		if($$self{$k}>1) { $$self{$k}=1; carp("$k>1") }
+		if($$self{$k}<0) { $$self{$k}=0; carp("$k<0"); $$self{_err}=1 }
+		if($$self{$k}>1) { $$self{$k}=1; carp("$k>1"); $$self{_err}=1 }
 	}
-	if($$self{tsA}>=$$self{tsB}) { $$self{tsB}=1+$$self{tsA}; carp('tsA>=tsB') }
+	if($$self{tsA}>=$$self{tsB}) { $$self{tsB}=1+$$self{tsA}; carp('tsA>=tsB'); $$self{_err}=1 }
 	if($$self{_warnExpired}&&($$self{tsB}<time())&&(abs(0.5-$$self{final})>=0.5)) {
-		if($$self{name}) { carp("Event has expired:  $$self{name}") }
-		else { carp("Event with tsB=$$self{tsB} has expired") }
+		if($$self{name}) { carp("Event has expired:  $$self{name}"); $$self{_err}=1 }
+		else { carp("Event with tsB=$$self{tsB} has expired"); $$self{_err}=1 }
 	}
 	$$self{_shaper}  =Schedule::Easing::Function::shape($$self{shape});
 	$$self{_unshaper}=Schedule::Easing::Function::inverse($$self{shape});
