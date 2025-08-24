@@ -70,9 +70,7 @@ GetOptions(
 	'time=i'    =>\$opt{time},    # undocumented
 );
 if($opt{help}) { pod2usage(-verbose=>2,-exitval=>2) }
-
-if($opt{expiration}) { die 'expiration not yet supported' }
-if($opt{check})      { die 'check not yet supported' }
+if($opt{check}){ die 'check not yet supported' }
 
 my @schedule=
 	$opt{schedule} ? loadeval($opt{schedule}) :
@@ -82,8 +80,8 @@ my @schedule=
 # Needs updated to support stream options.
 
 my $easing=Schedule::Easing->new(
-	warnExpired=>$opt{expiration},
 	schedule=>\@schedule,
+	warnExpired=>$opt{expiration},
 );
 if(!$easing) { exit(1) }
 

@@ -3,7 +3,7 @@ package Schedule::Easing;
 use strict;
 use warnings;
 
-our $VERSION='0.1.1';
+our $VERSION='0.1.2';
 
 use Carp qw/carp confess/;
 
@@ -15,8 +15,8 @@ sub new {
 	my ($ref,%opt)=@_;
 	my $class=ref($ref)||$ref;
 	my %self=(
-		schedule=>$opt{schedule}//[],
-		_warnExpired=>$opt{_warnExpired}//0,
+		schedule   =>$opt{schedule}//[],
+		warnExpired=>$opt{warnExpired}//0,
 	);
 	return bless(\%self,$class)->init();
 }
@@ -33,7 +33,7 @@ sub init {
 	foreach my $ease (@{$$self{schedule}}) {
 		if(ref($ease) ne 'HASH') { confess('Schedule entry must be a hash') }
 		if(my $builder=$builder{$$ease{type}}) {
-			$ease=$builder->new(%$ease,_warnExpired=>$$self{_warnExpired});
+			$ease=$builder->new(%$ease,_warnExpired=>$$self{warnExpired});
 		}
 		else { confess("Unsupported entry type $$ease{type}") }
 	}
@@ -98,7 +98,7 @@ Schedule::Easing - Stateless, stable filtering of events with ramp-up activation
 
 =head1 VERSION
 
-Version 0.1.1
+Version 0.1.2
 
 =head1 SYNOPSIS
 

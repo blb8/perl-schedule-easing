@@ -7,11 +7,12 @@ use Scalar::Util qw/looks_like_number/;
 
 use Schedule::Easing::Function;
 
-our $VERSION='0.1.1';
+our $VERSION='0.1.2';
 
-sub _default_keys { return qw/match begin final tsA tsB shape shapeopt _warnExpired/ }
+sub _default_keys { return qw/name match begin final tsA tsB shape shapeopt _warnExpired/ }
 sub _default {
 	return (
+		name =>undef,
 		match=>qr/./,
 		begin=>0,
 		final=>1,
