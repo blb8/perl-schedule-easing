@@ -8,16 +8,7 @@ use Pod::Usage;
 use Schedule::Easing;
 use Schedule::Easing::Stream;
 
-#        (these likely all belong in Schedule::Easing::Stream)
-#
-# todo:  stream batching (performance)
-# todo:  reduce the number of calls to time(), maybe via alarm()?
-#        timecheck=lines,##,sleep,##,clock,##,regexp,string
-#        where lines=## would update the time every ## lines
-#        where sleep=## if there is no input, wait ##sec before checking (might block fifo) (but will be interrupted by clock/alarm())
-#        where clock=## uses alarm(##) to uptime the time every ## seconds
-#        where regexp=string would use the pattern to get the time from the lines (but this requires epoch time)
-# todo:  support historical checking, pulling the timestamp from the line itself
+# todo:  replay mode, historical checking, pulling the timestamp from the line itself?
 
 sub load {
 	my ($fn)=@_;
