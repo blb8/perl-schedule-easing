@@ -12,7 +12,8 @@
 		},
 		"test": {
 			"requires": {
-				"Test::More": "1.302109"
+				"Test::More": "1.302109",
+				"Test::Warn": "0.08"
 			}
 		},
 		"runtime": {
