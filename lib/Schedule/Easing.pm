@@ -66,7 +66,6 @@ sub matches {
 
 sub schedule {
 	my ($self,%opt)=@_;
-	confess('Not yet supported');
 	my @res;
 	foreach my $event (@{$opt{events}}) {
 		my $message;
@@ -79,6 +78,8 @@ sub schedule {
 		foreach my $ease (@{$$self{schedule}}) {
 			if(my %data=$ease->matches($message)) {
 				$scheduled=$ease->schedule(message=>$message,%data);
+				my $intsched=int($scheduled);
+				if($scheduled>$intsched) { $scheduled=1+$intsched }
 				last;
 			}
 		}

@@ -66,7 +66,7 @@ sub read {
 	if($$self{clock}&&($$self{clock}>=1)) {
 		$SIG{ALRM}=sub {
 			$self->processBatch(\@batch,1);
-			&{$$self{update}}(time());
+			&{$$self{update}}(time()) if($$self{update});
 			alarm($$self{clock});
 		};
 		alarm($$self{clock});
@@ -74,7 +74,7 @@ sub read {
 	while(<$fh>) {
 		if($$self{regexp}&&(my ($ts)=($_=~$$self{regexp}))) {
 			$self->processBatch(\@batch,0);
-			&{$$self{update}}($ts); 
+			&{$$self{update}}($ts) if($$self{update});
 			$self->processBatch([$_],1);
 			$countdown=$$self{lines};
 			next;
@@ -83,7 +83,7 @@ sub read {
 		if(1+$#batch<$$self{batch}) { next }
 		$self->processBatch(\@batch,1);
 		if(defined($countdown)&&(($countdown-=$$self{batch})<=0)) {
-			&{$$self{update}}(time());
+			&{$$self{update}}(time()) if($$self{update});
 			$countdown=$$self{lines};
 		}
 	};
