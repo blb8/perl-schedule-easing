@@ -294,6 +294,12 @@ All above examples call C<$easing-E<gt>matches(events=>[event, ...])> using line
 
 An array of event objects can be passed instead of simple strings.  An individual C<event> can be a hash of the form C<{message=>"...",...}> or an array of the form C<[message,...]>, and the C<message> will be used for matching purposes.  The returned list will be the entire matching event objects.
 
+=head2 Relaxing
+
+Support is currently I<experimental>:  Shaping functions and their inverses have been tested for relaxing, but otherwise only a few high level tests have been performed.
+
+Configurations with C<beginE<gt>final> can be used for message reduction, or "relaxing", situations.  Relaxing follows the same behaviors as easing with the notions of starting and ending behaviors flipped.  For individual shaping functions, it's easiest to think of the shape as a vertical mirror image (around the central y-axis).  For example, an easing power curve with C<exponent=2> has C<p=0.25> at the middle timestamp, whereas a relaxing curve has C<p=0.75>; both are still "flatter near the beginning and steeper near the end".
+
 =head1 Validation and Debugging
 
 When a non-fatal error is encountered, C<$$easing{_err}=1> will be set.  At this time no additional information is provided, except as emitted by C<carp>.
