@@ -41,9 +41,10 @@ sub linearShape {
 
 sub linearInverse {
 	my ($y,$tsA,$tsB,$ymin,$ymax)=@_;
-	if(($ymax>$ymin)&&(($y<$ymin)||($y>$ymax))) { return }
-	elsif($ymax<$ymin) { confess('Not currently supported') }
-	return linearShape($y,$ymin,$ymax,$tsA,$tsB);
+	if   (($ymax>$ymin)&&(($y<$ymin)||($y>$ymax))) { return }
+	elsif(($ymax<$ymin)&&(($y>$ymin)||($y<$ymax))) { return }
+	if($ymax>$ymin) { return linearShape($y,$ymin,$ymax,$tsA,$tsB) }
+	else            { return linearShape($ymax+$ymin-$y,$ymax,$ymin,$tsA,$tsB) }
 }
 
 sub powerShape {
@@ -55,7 +56,8 @@ sub powerShape {
 
 sub powerInverse {
 	my ($y,$tsA,$tsB,$ymin,$ymax,$power)=@_;
-	return powerShape($y,$ymin,$ymax,$tsA,$tsB,1/$power);
+	if($ymin<$ymax) { return powerShape($y,$ymin,$ymax,$tsA,$tsB,1/$power) }
+	else { return powerShape($ymax+$ymin-$y,$ymax,$ymin,$tsA,$tsB,1/$power) }
 }
 
 sub stepShape {
@@ -67,7 +69,8 @@ sub stepShape {
 
 sub stepInverse {
 	my ($y,$tsA,$tsB,$ymin,$ymax,$steps)=@_;
-	return stepShape($y,$ymin,$ymax,$tsA,$tsB,$steps);
+	if($ymin<$ymax) { return stepShape($y,$ymin,$ymax,$tsA,$tsB,$steps) }
+	else            { return stepShape($ymax+$ymin-$y,$ymax,$ymin,$tsA,$tsB,$steps) }
 }
 
 1;
