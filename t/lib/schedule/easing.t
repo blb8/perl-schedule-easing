@@ -38,7 +38,7 @@ sub sawstep {
 sub matchseq {
 	my ($easing,$events,$tsA,$tsB,$tsStep,$errf)=@_;
 	my @res;
-	my $lastN=0;
+	my $lastN=scalar($easing->matches(ts=>$tsA-1,events=>$events));
 	for(my $ts=$tsA;$ts<=$tsB;$ts+=$tsStep) {
 		my $N=scalar($easing->matches(ts=>$ts,events=>$events));
 		push @res,{
@@ -62,6 +62,20 @@ sub validateSequence {
 	my $final=abs($opt{final}-$seq[-1]{N})/$opt{eventN}*100;
 	ok($initial<$opt{threshold},                 "$opt{label}:  initial event count");
 	ok(!(grep {$$_{dN}<0} @seq),                 "$opt{label}:  non-decreasing");
+	ok(!(grep {$$_{err}>=$opt{threshold}} @seq), "$opt{label}:  linearity");
+	ok($final<$opt{threshold},                   "$opt{label}:  final event count");
+}
+
+sub validateRelaxing {
+	my (%opt)=@_;
+	foreach my $k (grep {!$opt{$_}} qw//) { die "Missing option $k" }
+	my @events=sort {int(rand(3))-1} map { &{$sample{$opt{samplename}}{sample}}($_) } (1..$opt{eventN});
+	my @seq=matchseq($opt{easing},\@events,$opt{tsA},$opt{tsB},$opt{tsStep},sub {
+		my ($x,$y)=@_; return abs($y-sawstep($x,$opt{tsA},$opt{tsB},$opt{begin},$opt{final}))/$opt{eventN}*100 });
+	my $initial=abs($opt{begin}-scalar($opt{easing}->matches(ts=>$opt{tsA}-1,events=>\@events)))/$opt{eventN}*100;
+	my $final=abs($opt{final}-$seq[-1]{N})/$opt{eventN}*100;
+	ok($initial<$opt{threshold},                 "$opt{label}:  initial event count");
+	ok(!(grep {$$_{dN}>0} @seq),                 "$opt{label}:  non-increasing");
 	ok(!(grep {$$_{err}>=$opt{threshold}} @seq), "$opt{label}:  linearity");
 	ok($final<$opt{threshold},                   "$opt{label}:  final event count");
 }
@@ -92,7 +106,7 @@ subtest 'Initialization'=>sub {
 # of (eventN,tsA,tsB,threshold).
 #
 subtest 'md5'=>sub {
-	plan tests=>8;
+	plan tests=>16;
 	my $label='md5 [0,100]';
 	my ($eventN,$tsA,$tsB,$threshold)=(2_000,100,700,2.1);
 	my $easing=Schedule::Easing->new(
@@ -151,10 +165,68 @@ subtest 'md5'=>sub {
 		label=>$label,
 		threshold=>$threshold,
 	);
+	#
+	$label='md5 [100,0]';
+	$easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'md5',
+				name=>'Fake warnings md5',
+				match=>$sample{prefixWarning}{md5},
+				begin=>1.00,
+				final=>0.00,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				# tsStep=>86400, # not yet supported
+			},
+		],
+	);
+	validateRelaxing(
+		eventN=>$eventN,
+		samplename=>'prefixWarning',
+		easing=>$easing,
+		tsA=>$tsA,
+		tsB=>$tsB,
+		begin=>$eventN,
+		final=>0,
+		tsStep=>100,
+		label=>$label,
+		threshold=>$threshold,
+	);
+	#
+	$label='md5 [95,5]';
+	$easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'md5',
+				name=>'Fake warnings md5',
+				match=>$sample{prefixWarning}{md5},
+				begin=>0.95,
+				final=>0.05,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				# tsStep=>86400, # not yet supported
+			},
+		],
+	);
+	validateRelaxing(
+		eventN=>$eventN,
+		samplename=>'prefixWarning',
+		easing=>$easing,
+		tsA=>$tsA,
+		tsB=>$tsB,
+		begin=>0.95*$eventN,
+		final=>0.05*$eventN,
+		tsStep=>100,
+		label=>$label,
+		threshold=>$threshold,
+	);
 };
 
 subtest 'numeric'=>sub {
-	plan tests=>8;
+	plan tests=>16;
 	my $label='numeric [0,100]';
 	my ($eventN,$tsA,$tsB,$threshold)=(2_000,100,700,0.05);
 	my $easing=Schedule::Easing->new(
@@ -217,8 +289,69 @@ subtest 'numeric'=>sub {
 		label=>$label,
 		threshold=>$threshold,
 	);
+	#
+	$label='numeric [100,0]';
+	$easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'numeric',
+				name=>'Fake warnings numeric',
+				match=>$sample{prefixWarning}{numeric},
+				begin=>1.00,
+				final=>0.00,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				ymin=>1,
+				ymax=>$eventN,
+				# tsStep=>86400, # not yet supported
+			},
+		],
+	);
+	validateRelaxing(
+		eventN=>$eventN,
+		samplename=>'prefixWarning',
+		easing=>$easing,
+		tsA=>$tsA,
+		tsB=>$tsB,
+		begin=>$eventN,
+		final=>0,
+		tsStep=>100,
+		label=>$label,
+		threshold=>$threshold,
+	);
+	#
+	$label='numeric [95,5]';
+	$easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'numeric',
+				name=>'Fake warnings numeric',
+				match=>$sample{prefixWarning}{numeric},
+				begin=>0.95,
+				final=>0.05,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				ymin=>1,
+				ymax=>$eventN,
+				# tsStep=>86400, # not yet supported
+			},
+		],
+	);
+	validateRelaxing(
+		eventN=>$eventN,
+		samplename=>'prefixWarning',
+		easing=>$easing,
+		tsA=>$tsA,
+		tsB=>$tsB,
+		begin=>0.95*$eventN,
+		final=>0.05*$eventN,
+		tsStep=>100,
+		label=>$label,
+		threshold=>$threshold,
+	);
 };
-
 
 subtest 'Other'=>sub {
 	plan tests=>7;
