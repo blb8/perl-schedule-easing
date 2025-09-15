@@ -414,7 +414,7 @@ subtest 'Other'=>sub {
 };
 
 subtest 'Schedule'=>sub {
-	plan tests=>2*2;
+	plan tests=>2*4;
 	my $label='md5 [0,100]';
 	my ($eventN,$tsA,$tsB,$threshold)=(2_000,100,700,2.1);
 	my $easing=Schedule::Easing->new(
@@ -484,6 +484,70 @@ subtest 'Schedule'=>sub {
 	}
 	is($beforeCount,2,        "$label:  No messages before");
 	is($afterCount,$#events-1,"$label:  Messages after computed time");
+	#
+	$label='md5 [100,0]';
+	$easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'md5',
+				name=>'Fake warnings md5',
+				match=>$sample{prefixWarning}{md5},
+				begin=>1.00,
+				final=>0.00,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				# tsStep=>86400, # not yet supported
+			},
+			{
+				type=>'block',
+				match=>qr/block/,
+			},
+		],
+	);
+	($beforeCount,$afterCount)=(0,0);
+	foreach my $event (@events) {
+		my $ts=($easing->schedule(events=>[$event]))[0][0];
+		if(defined($ts)) {
+			$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
+			$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+		}
+	}
+	is($beforeCount,$#events-1,"$label:  Messages before computed time");
+	is($afterCount,          2,"$label:  No messages after");
+	#
+	$label='numeric [100,0]';
+	$easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'numeric',
+				name=>'Fake warnings numeric',
+				match=>$sample{prefixWarning}{numeric},
+				begin=>1.00,
+				final=>0.00,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				ymin=>1,
+				ymax=>$eventN,
+				# tsStep=>86400, # not yet supported
+			},
+			{
+				type=>'block',
+				match=>qr/block/,
+			},
+		],
+	);
+	($beforeCount,$afterCount)=(0,0);
+	foreach my $event (@events) {
+		my $ts=($easing->schedule(events=>[$event]))[0][0];
+		if(defined($ts)) {
+			$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
+			$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+		}
+	}
+	is($beforeCount,$#events-1,"$label:  Messages before computed time");
+	is($afterCount,          2,"$label:  No messages after");
 	#
 };
 

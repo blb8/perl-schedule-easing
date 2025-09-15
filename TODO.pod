@@ -16,7 +16,7 @@ Documentation is likely incomplete.
 
 =head2 Relaxing, reducing, decreasing messages over time is experimental
 
-Behavior when C<beginE<gt>final> has initial tests for matching and event inclusion.  Testing and documentation may be incomplete.  Note that timestamp discovery doesn't currently support this configuration.
+Behavior when C<beginE<gt>final> is partially tested.  Documentation may be incomplete.
 
 =head2 Power and Step inverses are experimental
 

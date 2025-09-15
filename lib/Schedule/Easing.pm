@@ -329,8 +329,6 @@ Timestamp computation is possible for a collection of events by calling C<easing
 
 Note:  Current C<timestamp> values have "two second accuracy" because of rounding behaviors.  Events may be included starting one second before or after the reported time.
 
-Note:  At this time, C<beginE<gt>final> is not supported.
-
 =head1 SEE ALSO
 
 L<Algorithm::Easing>
