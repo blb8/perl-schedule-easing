@@ -82,6 +82,7 @@ sub schedule {
 	if(!defined($D{value})) { return 0 }
 	if(!looks_like_number($D{value})) { return 0 }
 	my $p=($D{value}-$$self{ymin})/$$self{yrange};
+	if($$self{begin}>$$self{final}) { confess('begin>final not currently supported') }
 	if($p<$$self{begin}) { return 0 }
 	if($p>$$self{final}) { return }
 	return $$self{_unshaper}->($p,@$self{qw/tsA tsB begin final/},@{$$self{shapeopt}});

@@ -51,7 +51,7 @@ sub includes {
 
 sub schedule {
 	my ($self)=@_;
-	return 0;
+	return;
 }
 
 1;

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use Schedule::Easing;
-use Test::More tests=>4;
+use Test::More tests=>5;
 
 # TOTEST:  messages that match no {match} entry (should always be included)
 
@@ -404,6 +404,63 @@ subtest 'Other'=>sub {
 	is_deeply([$easing->matches(ts=>8,events=>[5])],[5],'Shape power, ts==8');
 };
 
+subtest 'Schedule'=>sub {
+	plan tests=>2*2;
+	my $label='md5 [0,100]';
+	my ($eventN,$tsA,$tsB,$threshold)=(2_000,100,700,2.1);
+	my $easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'md5',
+				name=>'Fake warnings md5',
+				match=>$sample{prefixWarning}{md5},
+				begin=>0.00,
+				final=>1.00,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				# tsStep=>86400, # not yet supported
+			},
+		],
+	);
+	my @events=sort {int(rand(3))-1} map { &{$sample{prefixWarning}{sample}}($_) } (1..$eventN);
+	my ($beforeCount,$afterCount);
+	foreach my $event (@events) {
+		my $ts=($easing->schedule(events=>[$event]))[0][0];
+		$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
+		$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+	}
+	is($beforeCount,0,        "$label:  No messages before");
+	is($afterCount,1+$#events,"$label:  Messages after computed time");
+	#
+	$label='numeric [0,100]';
+	$easing=Schedule::Easing->new(
+		warnExpired=>0,
+		schedule=>[
+			{
+				type=>'numeric',
+				name=>'Fake warnings numeric',
+				match=>$sample{prefixWarning}{numeric},
+				begin=>0.00,
+				final=>1.00,
+				tsA=>$tsA,
+				tsB=>$tsB,
+				ymin=>1,
+				ymax=>$eventN,
+				# tsStep=>86400, # not yet supported
+			},
+		],
+	);
+	($beforeCount,$afterCount)=(0,0);
+	foreach my $event (@events) {
+		my $ts=($easing->schedule(events=>[$event]))[0][0];
+		$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
+		$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+	}
+	is($beforeCount,0,        "$label:  No messages before");
+	is($afterCount,1+$#events,"$label:  Messages after computed time");
+	#
+};
 
 
 # html logs

@@ -3,6 +3,7 @@ package Schedule::Easing::MD5;
 use strict;
 use warnings;
 use parent qw/Schedule::Easing::Ease/;
+use Carp qw/confess/;
 use Digest::MD5 qw/md5/;
 
 our $VERSION='0.1.3';
@@ -56,6 +57,7 @@ sub schedule {
 	if(!$digest) { $digest=$D{message} }
 	if(!$digest) { return $$self{tsA} }
 	my $y=(unpack('L',substr(md5($digest//''),0,4))%$$self{tsrange})/$$self{tsrange};
+	if($$self{begin}>$$self{final}) { confess('begin>final not currently supported') }
 	if($y<$$self{begin}) { return 0 }
 	if($y>$$self{final}) { return }
 	return $$self{_unshaper}->($y,@$self{qw/tsA tsB begin final/},@{$$self{shapeopt}});

@@ -12,15 +12,15 @@ Documentation is likely incomplete.
 
 =head2 Script timestamps option
 
-(Available with 0.1.3)  C<schedule-easing.pl --timestamps> should work.  It is currently available but not well tested.
+(Available with 0.1.3)  C<schedule-easing.pl --timestamps> should work.  It is currently available but not fully tested.  See notes in L<Schedule::Easing/"Timestamp Discovery">.
 
-=head2 Reducing/decreasing messages over time is experimental
+=head2 Relaxing, reducing, decreasing messages over time is experimental
 
-Behavior when C<beginE<gt>final> has initial but incomplete tests.  Documentation may be incomplete.
+Behavior when C<beginE<gt>final> has initial tests for matching and event inclusion.  Testing and documentation may be incomplete.  Note that timestamp discovery doesn't currently support this configuration.
 
 =head2 Power and Step inverses are experimental
 
-The functions have not been fully tested with the C<timestamps> calculations.
+The functions have not been tested with the C<timestamps> calculations.
 
 =head1 Tests
 

@@ -78,8 +78,10 @@ sub schedule {
 		foreach my $ease (@{$$self{schedule}}) {
 			if(my %data=$ease->matches($message)) {
 				$scheduled=$ease->schedule(message=>$message,%data);
-				my $intsched=int($scheduled);
-				if($scheduled>$intsched) { $scheduled=1+$intsched }
+				if(defined($scheduled)) {
+					my $intsched=int($scheduled);
+					if($scheduled>$intsched) { $scheduled=1+$intsched }
+				}
 				last;
 			}
 		}
@@ -133,6 +135,7 @@ Version 0.1.3
   );
   
   my @matches=$easing->matches(ts=>time(), events=>\@events);
+  my @timestamps=$easing->schedule(events=>\@events);
 
 =head1 DESCRIPTION
 
@@ -311,6 +314,14 @@ Some parameters to an easing entry are mandatory and will fail initialization vi
 =head2 Expired easing configurations
 
 Initializing the object with C<Schedule::Easing-E<gt>new(warnExpired=>1)> will report if any entries in the schedule have C<tsB> in the past, and C<final=1> or C<final=0>.  This permits discovery and removal of unneeded pattern matchers, which otherwise slow down processing.  When C<finalE<lt>1>, no warnings will be reported since filtering is still active.
+
+=head1 Timestamp Discovery
+
+Timestamp computation is possible for a collection of events by calling C<easing-E<gt>schedule(events=>[...])> and returns a list of items of the form C<[timestamp,event]>.  The C<timestamp> will be undefined if the event is never emitted, and zero if it is always emitted.
+
+Note:  Current C<timestamp> values have "two second accuracy" because of rounding behaviors.  Events may be included starting one second before or after the reported time.
+
+Note:  At this time, C<beginE<gt>final> is not supported.
 
 =head1 SEE ALSO
 
