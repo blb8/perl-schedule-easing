@@ -3,7 +3,7 @@ package Schedule::Easing;
 use strict;
 use warnings;
 
-our $VERSION='0.1.3';
+our $VERSION='0.1.4';
 
 use Carp qw/carp confess/;
 
@@ -102,7 +102,7 @@ Schedule::Easing - Stateless, stable filtering of events with ramp-up activation
 
 =head1 VERSION
 
-Version 0.1.3
+Version 0.1.4
 
 =head1 SYNOPSIS
 

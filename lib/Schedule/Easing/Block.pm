@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use parent qw/Schedule::Easing::Ease/;
 
-our $VERSION='0.1.3';
+our $VERSION='0.1.4';
 
 sub _default_keys {
 	my ($self)=@_;
