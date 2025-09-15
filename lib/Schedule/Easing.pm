@@ -222,6 +222,14 @@ Adjusting the values controls the initial and final message rates.  At C<begin=0
 
 For all easing types, if C<final=1>, matching messages are always included after C<tsB>.  When C<finalE<lt>1>, messages that weren't included before C<tsB> will I<never be included> after C<tsB>.
 
+Here is a summary of the message inclusion rates for various combinations of C<begin> and C<final>:
+
+  begin final  <tsA   tsA   tsB  >tsB
+  0     1        0%    0%  100%  100%
+  0.1   0.9     10%   10%   90%   90%
+  1     0      100%  100%    0%    0%
+  0.9   0.1     90%   90%   10%   10%
+
 =head2 Easing Types
 
 The value given to each message when comparing against the currently-computed threshold is determined by the easing type.

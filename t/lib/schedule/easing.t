@@ -58,26 +58,35 @@ sub validateSequence {
 	my @events=sort {int(rand(3))-1} map { &{$sample{$opt{samplename}}{sample}}($_) } (1..$opt{eventN});
 	my @seq=matchseq($opt{easing},\@events,$opt{tsA},$opt{tsB},$opt{tsStep},sub {
 		my ($x,$y)=@_; return abs($y-sawstep($x,$opt{tsA},$opt{tsB},$opt{begin},$opt{final}))/$opt{eventN}*100 });
-	my $initial=abs($opt{begin}-scalar($opt{easing}->matches(ts=>$opt{tsA}-1,events=>\@events)))/$opt{eventN}*100;
+	my $precount=abs($opt{begin}-scalar($opt{easing}->matches(ts=>$opt{tsA}-5,events=>\@events)))/$opt{eventN}*100;
+	my $initial=abs($opt{begin}-scalar($opt{easing}->matches(ts=>$opt{tsA}+0,events=>\@events)))/$opt{eventN}*100;
 	my $final=abs($opt{final}-$seq[-1]{N})/$opt{eventN}*100;
+	my $postcount=abs($opt{final}-scalar($opt{easing}->matches(ts=>$opt{tsB}+5,events=>\@events)))/$opt{eventN}*100;
+	ok($precount<$opt{threshold},                "$opt{label}:  ts<tsA event count");
 	ok($initial<$opt{threshold},                 "$opt{label}:  initial event count");
 	ok(!(grep {$$_{dN}<0} @seq),                 "$opt{label}:  non-decreasing");
 	ok(!(grep {$$_{err}>=$opt{threshold}} @seq), "$opt{label}:  linearity");
 	ok($final<$opt{threshold},                   "$opt{label}:  final event count");
+	ok($postcount<$opt{threshold},               "$opt{label}:  ts>tsB event count");
 }
 
+# Identical to validateSequence except it checks dN>0.  Merge them eventually.
 sub validateRelaxing {
 	my (%opt)=@_;
 	foreach my $k (grep {!$opt{$_}} qw//) { die "Missing option $k" }
 	my @events=sort {int(rand(3))-1} map { &{$sample{$opt{samplename}}{sample}}($_) } (1..$opt{eventN});
 	my @seq=matchseq($opt{easing},\@events,$opt{tsA},$opt{tsB},$opt{tsStep},sub {
 		my ($x,$y)=@_; return abs($y-sawstep($x,$opt{tsA},$opt{tsB},$opt{begin},$opt{final}))/$opt{eventN}*100 });
-	my $initial=abs($opt{begin}-scalar($opt{easing}->matches(ts=>$opt{tsA}-1,events=>\@events)))/$opt{eventN}*100;
+	my $precount=abs($opt{begin}-scalar($opt{easing}->matches(ts=>$opt{tsA}-5,events=>\@events)))/$opt{eventN}*100;
+	my $initial=abs($opt{begin}-scalar($opt{easing}->matches(ts=>$opt{tsA}+0,events=>\@events)))/$opt{eventN}*100;
 	my $final=abs($opt{final}-$seq[-1]{N})/$opt{eventN}*100;
+	my $postcount=abs($opt{final}-scalar($opt{easing}->matches(ts=>$opt{tsB}+5,events=>\@events)))/$opt{eventN}*100;
+	ok($precount<$opt{threshold},                "$opt{label}:  ts<tsA event count");
 	ok($initial<$opt{threshold},                 "$opt{label}:  initial event count");
 	ok(!(grep {$$_{dN}>0} @seq),                 "$opt{label}:  non-increasing");
 	ok(!(grep {$$_{err}>=$opt{threshold}} @seq), "$opt{label}:  linearity");
 	ok($final<$opt{threshold},                   "$opt{label}:  final event count");
+	ok($postcount<$opt{threshold},               "$opt{label}:  ts>tsB event count");
 }
 
 subtest 'Initialization'=>sub {
@@ -106,7 +115,7 @@ subtest 'Initialization'=>sub {
 # of (eventN,tsA,tsB,threshold).
 #
 subtest 'md5'=>sub {
-	plan tests=>16;
+	plan tests=>24;
 	my $label='md5 [0,100]';
 	my ($eventN,$tsA,$tsB,$threshold)=(2_000,100,700,2.1);
 	my $easing=Schedule::Easing->new(
@@ -226,7 +235,7 @@ subtest 'md5'=>sub {
 };
 
 subtest 'numeric'=>sub {
-	plan tests=>16;
+	plan tests=>24;
 	my $label='numeric [0,100]';
 	my ($eventN,$tsA,$tsB,$threshold)=(2_000,100,700,0.05);
 	my $easing=Schedule::Easing->new(
@@ -421,17 +430,27 @@ subtest 'Schedule'=>sub {
 				tsB=>$tsB,
 				# tsStep=>86400, # not yet supported
 			},
+			{
+				type=>'block',
+				match=>qr/block/,
+			},
 		],
 	);
 	my @events=sort {int(rand(3))-1} map { &{$sample{prefixWarning}{sample}}($_) } (1..$eventN);
+	push @events,'block me:  message one';
+	push @events,'pass me:  message two';
+	push @events,'block me:  message three';
+	push @events,'pass me:  message four';
 	my ($beforeCount,$afterCount);
 	foreach my $event (@events) {
 		my $ts=($easing->schedule(events=>[$event]))[0][0];
-		$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
-		$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+		if(defined($ts)) {
+			$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
+			$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+		}
 	}
-	is($beforeCount,0,        "$label:  No messages before");
-	is($afterCount,1+$#events,"$label:  Messages after computed time");
+	is($beforeCount,2,        "$label:  No messages before");
+	is($afterCount,$#events-1,"$label:  Messages after computed time");
 	#
 	$label='numeric [0,100]';
 	$easing=Schedule::Easing->new(
@@ -449,16 +468,22 @@ subtest 'Schedule'=>sub {
 				ymax=>$eventN,
 				# tsStep=>86400, # not yet supported
 			},
+			{
+				type=>'block',
+				match=>qr/block/,
+			},
 		],
 	);
 	($beforeCount,$afterCount)=(0,0);
 	foreach my $event (@events) {
 		my $ts=($easing->schedule(events=>[$event]))[0][0];
-		$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
-		$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+		if(defined($ts)) {
+			$beforeCount+=scalar($easing->matches(ts=>$ts-2,events=>[$event]));
+			$afterCount +=scalar($easing->matches(ts=>$ts+2,events=>[$event]));
+		}
 	}
-	is($beforeCount,0,        "$label:  No messages before");
-	is($afterCount,1+$#events,"$label:  Messages after computed time");
+	is($beforeCount,2,        "$label:  No messages before");
+	is($afterCount,$#events-1,"$label:  Messages after computed time");
 	#
 };
 
