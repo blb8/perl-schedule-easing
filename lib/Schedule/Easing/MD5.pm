@@ -3,7 +3,6 @@ package Schedule::Easing::MD5;
 use strict;
 use warnings;
 use parent qw/Schedule::Easing::Ease/;
-use Carp qw/confess/;
 use Digest::MD5 qw/md5/;
 
 our $VERSION='0.1.3';

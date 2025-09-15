@@ -2,7 +2,7 @@ package Schedule::Easing::Function;
 
 use strict;
 use warnings;
-use Carp qw/carp confess/;
+use Carp qw/carp/;
 
 our $VERSION='0.1.3';
 
