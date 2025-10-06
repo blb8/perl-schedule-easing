@@ -10,6 +10,7 @@ use Carp qw/carp confess/;
 use Schedule::Easing::Block;
 use Schedule::Easing::MD5;
 use Schedule::Easing::Numeric;
+use Schedule::Easing::Pass;
 
 sub new {
 	my ($ref,%opt)=@_;
@@ -25,6 +26,7 @@ my %builder=(
 	'block'  =>'Schedule::Easing::Block',
 	'md5'    =>'Schedule::Easing::MD5',
 	'numeric'=>'Schedule::Easing::Numeric',
+	'pass'   =>'Schedule::Easing::Pass',
 );
 
 sub init {
@@ -156,6 +158,7 @@ Suppose the following failures and warnings are logged
   [1755487903] ERROR logging failure for order 8052060, will retry from logger.pm line 323
   [1755487925] ERROR invalid type in request, handler.pm line 485
   [1755487944] WARNING stock exceeded, requested 144 cherries
+  [1755487946] CRITICAL failure from logger.pm line 428
   [1755487947] ERROR logging failure for order 7463359, will retry from logger.pm line 323
   [1755487969] ERROR logging failure for order 8405888, will retry from logger.pm line 323
   [1755487990] ERROR logging failure for order 5695806, will retry from logger.pm line 323
@@ -188,8 +191,12 @@ The logging failures contain order numbers that can be used to compute a message
     tsA=>1755487800, tsB=>1755489160,
   },
 
-Finally, all stock messages can be blocked.
+Finally, all stock messages can be blocked or included.
 
+  {
+    name=>'Include all critical messages', type=>'pass',
+    match=>qr/(.*(?:CRITICAL).*)/,
+  },
   {
     name=>'Ignore stock messages', type=>'block',
     match=>qr/(.*(?:INFO|WARNING) stock.*)/,
@@ -197,6 +204,7 @@ Finally, all stock messages can be blocked.
 
 With the above configurations, if the sample lines arrive at the given timestamps, the following will be included in the output.
 
+  [1755487946] CRITICAL failure from logger.pm line 428
   [1755488026] ERROR logging failure for order 4762096, will retry from logger.pm line 323
   [1755488059] ERROR invalid type in request, handler.pm line 19
 
@@ -259,6 +267,10 @@ All matching groups are ordered by name, concatenated, and used to compute the m
 =head3 Block
 
 For configuration convenience, messages that match C<match> can always be blocked by setting C<type=block>.
+
+=head3 Pass
+
+For configuration convenience, messages that match C<match> can always be included by setting C<type=pass>.
 
 =head2 Unmatched Lines
 

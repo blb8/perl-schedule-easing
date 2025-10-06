@@ -6,10 +6,6 @@
 
 Documentation is likely incomplete, but has also gotten a bit more complex as configuration options become supported (sorry).
 
-=head2 Script timestamps option
-
-(Available with 0.1.3)  C<schedule-easing.pl --timestamps> should work.  It is currently available but not fully tested.  See notes in L<Schedule::Easing/"Timestamp Discovery">.
-
 =head2 Relaxing, reducing, decreasing messages over time is experimental
 
 (Available with 0.1.4) Behavior when C<beginE<gt>final> is partially tested.  Documentation may be incomplete.
@@ -18,13 +14,13 @@ Documentation is likely incomplete, but has also gotten a bit more complex as co
 
 (Available with 0.1.4) All functions should be fully supported, included for C<timestamps> calculations.
 
+=head2 Pass type
+
+(Available with 0.1.5) Support C<type=pass> that always includes a matching message.  Will help with faster bailout and to avoid unexpected matching against later easing configurations.
+
 =head2 Timestamp support in Block
 
 The C<block> type is currently universal.  It may be useful to have a scheduled blocking event that starts at C<tsA>, or that concludes at C<tsB>, or both.
-
-=head2 Pass type
-
-Support C<type=pass> that always includes a matching message.  Will help with faster bailout and to avoid unexpected matching against later easing configurations.
 
 =head1 To Review
 
