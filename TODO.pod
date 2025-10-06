@@ -16,7 +16,7 @@ Documentation is likely incomplete, but has also gotten a bit more complex as co
 
 =head2 Power and Step inverses are experimental
 
-The functions have not been tested with the C<timestamps> calculations.
+(Available with 0.1.4) All functions should be fully supported, included for C<timestamps> calculations.
 
 =head2 Timestamp support in Block
 
