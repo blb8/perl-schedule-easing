@@ -10,13 +10,17 @@ Documentation is likely incomplete, but has also gotten a bit more complex as co
 
 (Available with 0.1.4) Behavior when C<beginE<gt>final> is partially tested.  Documentation may be incomplete.
 
-=head2 Power and Step inverses are experimental
-
-(Available with 0.1.4) All functions should be fully supported, included for C<timestamps> calculations.
-
 =head2 Pass type
 
 (Available with 0.1.5) Support C<type=pass> that always includes a matching message.  Will help with faster bailout and to avoid unexpected matching against later easing configurations.
+
+=head2 Digest substitution
+
+(Available with 0.1.5) C<digestsub> supports replacing/removing characters in digest strings.
+
+=head2 Message substitution
+
+With the addition of digest substitution, there may be cases where messages should also undergo substitution when matching.  That is, if "extra details" are included in a message for the sake of the digest computation, it may be reasonable to remove portions of the message before display.  As this can be achieved with C<sed> or similar tools, it was not added in 0.1.5.  Options are being reviewed.
 
 =head2 Timestamp support in Block
 

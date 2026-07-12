@@ -6,7 +6,7 @@ use parent qw/Schedule::Easing::Ease/;
 use Carp qw/confess/;
 use Digest::MD5 qw/md5/;
 
-our $VERSION='0.1.4';
+our $VERSION='0.1.5';
 
 sub _default_keys {
 	my ($self)=@_;
