@@ -109,7 +109,7 @@ Version 0.1.4
 =head1 SYNOPSIS
 
   use Schedule::Easing;
-  
+
   my $easing=Schedule::Easing->new(
     schedule=>[
       {
@@ -120,6 +120,7 @@ Version 0.1.4
         tsB   =>456_000,
         begin =>0,
         final =>1,
+        digestsub=>..., # see below
         ...
       },
       {
@@ -135,7 +136,7 @@ Version 0.1.4
       },
     ],
   );
-  
+
   my @matches=$easing->matches(ts=>time(), events=>\@events);
   my @timestamps=$easing->schedule(events=>\@events);
 
@@ -263,6 +264,15 @@ The MD5 type requires that the C<match> configuration include one capture group 
   match=>qr/^hello (?<digest0>\w+) (?<digest1>\w+)/
 
 All matching groups are ordered by name, concatenated, and used to compute the message digest.  The digest value is used modulo the time range, C<tsB>-C<tsA>, to determine if the message crosses the current threshold for inclusion.
+
+Message digests may need to match only certain characters within a matching pattern.  Characters can be stripped using C<digestsub>:
+
+  digestsub=>   'pattern',
+  digestsub=> qr/pattern/,
+  digestsub=>[  'pattern','substitution']
+  digestsub=>[qr/pattern/,'substitution']
+
+Substitution is applied to all digest capture groups via the expected substitution C<s/pattern/substitution/g>.  When only a pattern is given, the substition is the empty string.  Digest substitution does I<not> affect the contents of the returned matching messages, only the digest construction.  As a practical example, consider C<digestsub=qr/\s/>, which can be used to match lines of code consistently even if line numbers or spacing changes.
 
 =head3 Block
 
