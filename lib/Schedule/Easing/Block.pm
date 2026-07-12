@@ -32,18 +32,6 @@ sub new {
 	return bless(\%self,$class)->validate()->init();
 }
 
-sub validate {
-	my ($self)=@_;
-	$self->SUPER::validate();
-	return $self;
-}
-
-sub init {
-	my ($self)=@_;
-	$self->SUPER::init();
-	return $self;
-}
-
 sub includes {
 	my ($self)=@_;
 	return 0;
